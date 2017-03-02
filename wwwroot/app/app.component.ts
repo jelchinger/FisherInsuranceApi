@@ -2,7 +2,7 @@ import {Component} from "@angular/core";
 
 @Component({
      selector: "fisher-insurance",
-     template: '<nav-bar>'
+     templateUrl: './app/app.component.html'
 
 })
 export class AppComponent { }

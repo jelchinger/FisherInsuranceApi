@@ -8,34 +8,36 @@ public class QuotesController : Controller
 {
     // POST api/auto/quotes
     
-    private IMemoryStore db;
+    private readonly FisherContext db;
 
-    public QuotesController(IMemoryStore repo){
-
-        db = repo;
-
+    public QuotesController(FisherContext context)
+    {
+        db = context;
     }
-    
+
+
     [HttpGet]
 
     public IActionResult GetQuotes() {
 
-        return Ok(db.RetrieveAllQuotes);
+        return Ok(db.Quotes);
 
     }
 
     [HttpPost]
     public IActionResult Post([FromBody] Quote quote)
     {
-        return Ok(db.CreateQuote(quote));
+        var newQuote = db.Quotes.Add(quote);
+        db.SaveChanges();
+        return CreatedAtRoute("GetQuote", new { id = quote.Id }, quote);
     }
 
     // GET api/auto/quotes/5
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}", Name = "GetQuote")]
     public IActionResult Get(int id) 
     {
-        return Ok(db.RetrieveQuote(id));
+        return Ok(db.Quotes.Find(id));
     }
 
     // PUT api/auto/quotes/id
@@ -43,7 +45,14 @@ public class QuotesController : Controller
     [HttpPut]
     public IActionResult Put(int id, [FromBody]Quote quote) 
     {
-        return Ok(db.UpdateQuote(quote));
+        var newQuote = db.Quotes.Find(id);
+        if (newQuote == null)
+        {
+            return NotFound();
+        }
+        newQuote = quote;
+        db.SaveChanges();
+        return Ok(newQuote);
     }
 
     // DELETE api/auto/quotes/id
@@ -52,8 +61,15 @@ public class QuotesController : Controller
     public IActionResult Delete(int id, [FromBody] Quote quote) 
     {
         
-        db.DeleteQuote(id);
-        
-        return Ok();
+        var quoteToDelete = db.Quotes.Find(id);
+        if (quoteToDelete == null)
+        {
+            return NotFound();
+        }
+        db.Quotes.Remove(quoteToDelete);
+        db.SaveChangesAsync();
+        return NoContent();
+
+
     }
 }

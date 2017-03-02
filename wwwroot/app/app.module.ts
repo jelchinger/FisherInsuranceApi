@@ -10,6 +10,7 @@ import { NavBarComponent } from './components/navbar/navbar.components';
 @NgModule({
      declarations: [
         AppComponent,
+        HomeComponent,
         NavBarComponent
     ],
     imports: [
